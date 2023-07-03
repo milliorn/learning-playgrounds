@@ -1,0 +1,23 @@
+on:
+  push:
+    paths:
+      - 'desktop.rs'
+      - 'bin/desktop/**'
+      - 'lib/**'
+      - '**/Cargo.toml'
+      - '**/Cargo.lock'
+name: Test desktop
+env:
+  CARGO_TERM_COLOR: always
+jobs:
+  test:
+    name: Test client
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+      - name: Install nightly toolchain
+        run: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain nightly -y
+      - run: sudo apt update && sudo apt install g++ pkg-config libx11-dev libasound2-dev libudev-dev
+      - name: Run cargo test
+        run: cargo test --bin desktop --features desktop -- --nocapture

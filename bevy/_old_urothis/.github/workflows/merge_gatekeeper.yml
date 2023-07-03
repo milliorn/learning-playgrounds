@@ -1,0 +1,17 @@
+on:
+  pull_request:
+    branches:
+      - main
+name: Merge Gatekeeper
+jobs:
+  merge-gatekeeper:
+    runs-on: ubuntu-latest
+    permissions:
+      checks: read
+      statuses: read
+    steps:
+      - name: Run Merge Gatekeeper
+        uses: upsidr/merge-gatekeeper@v1
+        with:
+          timeout: 1800
+          token: ${{ secrets.GITHUB_TOKEN }}

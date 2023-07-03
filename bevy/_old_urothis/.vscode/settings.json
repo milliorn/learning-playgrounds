@@ -1,0 +1,5 @@
+{
+    "python.analysis.extraPaths": [
+        "./build_windows_x64_vc17_Release/bin/Release/3.5/scripts/modules"
+    ]
+}

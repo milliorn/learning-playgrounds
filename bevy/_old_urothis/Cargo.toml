@@ -1,0 +1,49 @@
+[package]
+build = "build.rs"
+default-run = "desktop"
+edition = "2021"
+name = "proteus"
+version = "0.1.0"
+
+[[bin]]
+name = "desktop"
+path = "desktop.rs"
+required-features = ["desktop"]
+
+[[bin]]
+name = "tool"
+path = "tool.rs"
+required-features = ["tool"]
+
+[build-dependencies]
+shadow-rs = "0.21.0"
+
+[dependencies]
+# core deps
+clap = {version = "4.2.1", features = ["derive"]}
+shadow-rs = "0.21.0"
+# desktop deps
+bevy = {version = "0.10.1", optional = true}
+belly = {git = "https://github.com/jkb0o/belly", branch = "main", optional = true}
+# scott(temp)
+bevy_splash_screen = {version = "0.2.0", optional = true}
+bevy_tweening = {version = "0.7.0", optional = true}
+
+# tool stuff
+const_format = {version = "0.2.26", optional = true}
+env_logger = {version = "0.10.0", optional = true}
+log = {version = "0.4.17", optional = true}
+tokio = {version = "1", features = ["full"], optional = true}
+
+[features]
+default = ["desktop"]
+desktop = ["bevy", "rand", "gilrs", "belly", "bevy_splash_screen", "bevy_tweening"]
+tool = ["const_format", "env_logger", "log", "tokio"]
+
+[profile.dev.package."*"]
+opt-level = 3
+[profile.dev]
+opt-level = 1
+[profile.release]
+codegen-units = 1
+lto = true

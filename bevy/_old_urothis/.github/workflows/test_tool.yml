@@ -1,0 +1,22 @@
+on:
+  push:
+    paths:
+      - 'tool.rs'
+      - 'bin/tool/**'
+      - 'lib/**'
+      - '**/Cargo.toml'
+      - '**/Cargo.lock'
+name: Test tool
+env:
+  CARGO_TERM_COLOR: always
+jobs:
+  test:
+    name: Test tool
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+      - name: Install nightly toolchain
+        run: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain nightly -y
+      - name: Run cargo test
+        run: cargo test --bin tool --features tool -- --nocapture

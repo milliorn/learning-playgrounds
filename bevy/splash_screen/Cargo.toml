@@ -1,0 +1,24 @@
+[package]
+edition = "2021"
+name = "splash_screen"
+version = "0.1.0"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+# https://lib.rs/crates/bevy_splash_screen
+
+[dependencies]
+bevy = "0.10.1"
+bevy_splash_screen = "0.3.0"
+bevy_tweening = "0.7"
+
+# Enable a small amount of optimization in debug mode
+[profile.dev]
+opt-level = 1
+
+# Enable high optimizations for dependencies (incl. Bevy), but not for our code:
+[profile.dev.package."*"]
+opt-level = 3
+
+# WARN: You probably need to add this if you also use bevy_tweening
+[patch.crates-io]
+bevy_tweening = {git = "https://github.com/sibsibsib/bevy_tweening", branch = "mirrored_repeat_fix"}

@@ -1,0 +1,12 @@
+edition = "2021"
+imports_granularity = "Crate"
+binop_separator = "Back"
+fn_single_line = true
+format_strings = true
+brace_style = "PreferSameLine"
+fn_params_layout = "Vertical"
+indent_style = "Block"
+use_field_init_shorthand = true
+reorder_imports = true
+reorder_modules = true
+newline_style = "Unix"

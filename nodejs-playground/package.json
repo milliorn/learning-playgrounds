@@ -1,0 +1,26 @@
+{
+  "name": "nodejs-playground",
+  "version": "1.0.0",
+  "description": "<https://youtu.be/RLtyhwFtXQA?list=PLK4fpgXhcrIb-L7qsENA5-KiyH6Sgr-kI&t=885>",
+  "main": "server.js",
+  "scripts": {
+    "start": "nodemon server",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/milliorn/nodejs-playground.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/milliorn/nodejs-playground/issues"
+  },
+  "homepage": "https://github.com/milliorn/nodejs-playground#readme",
+  "dependencies": {
+    "express": "^4.18.2",
+    "lodash": "^4.17.21",
+    "nodemon": "^2.0.22"
+  }
+}
