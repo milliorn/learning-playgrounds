@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HTML5 Web Storage</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css"
+      integrity="sha512-oHDEc8Xed4hiW6CxD7qjbnI+B07vDdX7hEPTvn9pSZO1bcRqHp8mj9pyr+8RVC2GmtEfI2Bi9Ke9Ass0as+zpg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <style>
+      input[type="text"] {
+        border-radius: 0.25rem; /* 4px */
+        border-style: solid;
+        border-width: 2px;
+        border: #78716c;
+        height: 1.25rem; /* 20px */
+        width: 91.666667%;
+      }
+
+      #box {
+        background-color: #d6d3d1;
+        border-radius: 0.25rem; /* 4px */
+        margin: auto;
+        overflow: auto;
+        padding: 0.625rem; /* 10px */
+        width: 18rem; /* 288px */
+      }
+
+      h1 {
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>HTML5 Web Storage</h1>
+    <section id="box">
+      <form>
+        <p>
+          Key: <br />
+          <input type="text" id="key" />
+        </p>
+        <p>
+          Value: <br />
+          <input type="text" id="value" />
+        </p>
+        <p>
+          <input type="submit" id="button" value="Submit" />
+        </p>
+        <a href="javascript:clearForm()">Clear Storage</a>
+      </form>
+      <section id="display-data"></section>
+    </section>
+  </body>
+
+  <script>
+    function runFirst() {
+      const button = document.getElementById("button");
+      button.addEventListener("click", save, false);
+      displayStorage();
+    }
+
+    function save() {
+      const key = document.getElementById("key").value;
+      const value = document.getElementById("value").value;
+
+      // set the item to the key/value pair
+      sessionStorage.setItem(key, value);
+      displayStorage();
+
+      // clear the input boxes
+      key.value = "";
+      value.value = "";
+    }
+
+    function displayStorage() {
+      const display_data = document.getElementById("display-data");
+
+      display_data.innerHTML = "";
+
+      // loop, then output
+      for (let i = 0; i < sessionStorage.length; i++) {
+        const sessionStorageValue = sessionStorage.key(i);
+        const sessionStorageItem = sessionStorage.getItem(sessionStorageValue);
+
+        display_data.innerHTML += `${sessionStorageValue} - ${sessionStorageItem}<br>`;
+      }
+    }
+
+    function clearForm() {
+      // clear the form
+      sessionStorage.clear();
+      location.reload();
+    }
+
+    window.addEventListener("load", runFirst, false);
+  </script>
+</html>

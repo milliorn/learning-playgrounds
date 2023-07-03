@@ -1,0 +1,18 @@
+{
+  "name": "getting-started-with-postman",
+  "version": "1.0.0",
+  "description": "<https://quickstarts.postman.com/>",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "systeminformation": "^5.17.8",
+    "ws": "^8.12.0"
+  }
+}
