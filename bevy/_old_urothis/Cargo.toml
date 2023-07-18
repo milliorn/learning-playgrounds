@@ -20,7 +20,7 @@ shadow-rs = "0.21.0"
 
 [dependencies]
 # core deps
-clap = {version = "4.2.1", features = ["derive"]}
+clap = {version = "4.3.15", features = ["derive"]}
 shadow-rs = "0.21.0"
 # desktop deps
 bevy = {version = "0.10.1", optional = true}
