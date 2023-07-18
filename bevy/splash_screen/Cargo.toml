@@ -9,7 +9,7 @@ version = "0.1.0"
 [dependencies]
 bevy = "0.10.1"
 bevy_splash_screen = "0.3.0"
-bevy_tweening = "0.7"
+bevy_tweening = "0.8"
 
 # Enable a small amount of optimization in debug mode
 [profile.dev]
