@@ -9,4 +9,4 @@ edition = "2021"
 anyhow = "1.0.72"
 clap = { version = "4.2.7", features = ["derive"] }
 rayon = "1.7.0"
-zip = "0.6.5"
+zip = "0.6.6"
