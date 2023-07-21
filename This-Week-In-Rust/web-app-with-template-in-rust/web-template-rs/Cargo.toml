@@ -7,6 +7,6 @@ edition = "2021"
 
 [dependencies]
 axum = "0.6.19"
-minijinja = { version = "0.34.0", features = ["builtins"] }
+minijinja = { version = "1.0.5", features = ["builtins"] }
 serde = { version = "1.0.174", features = ["derive"] }
 tokio = { version = "1.29.1", features = ["full"] }
