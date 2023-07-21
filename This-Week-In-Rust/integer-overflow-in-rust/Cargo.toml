@@ -1,0 +1,16 @@
+[package]
+name = "integer-overflow-in-rust"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+cargo-show-asm = "0.2.20"
+
+# If you’re developing an application which in some way relies on integer overflow occurring, then you could potentially add the following lines to your Cargo.toml to ensure overflow-checks is disabled even when building with dev:
+
+[profile.dev]
+overflow-checks = false
+#https://crates.io/crates/cargo-show-asm
+cargo-show-asm = "0.2.12"
