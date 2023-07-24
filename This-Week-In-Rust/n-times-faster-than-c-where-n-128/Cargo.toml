@@ -1,0 +1,9 @@
+[package]
+name = "n-times-faster-than-c-where-n-128"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+
+[build]
+target = "aarch64-unknown-linux-gnu"  # Change this to the appropriate target for your platform
