@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1645148245 source:c:\users\scott\documents\coding\leetcode\easy\roman to integer\roman to integer\main.cpp
+	<iostream>
+	<string>
+	<unordered_map>
+
