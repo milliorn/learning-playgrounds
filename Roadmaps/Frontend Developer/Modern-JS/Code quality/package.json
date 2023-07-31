@@ -1,0 +1,14 @@
+{
+  "name": "y",
+  "version": "1.0.0",
+  "description": "<https://javascript.info/code-quality>",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "mocha": "^10.0.0"
+  }
+}

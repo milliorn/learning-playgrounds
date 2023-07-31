@@ -1,0 +1,24 @@
+{
+  "name": "mobx-2022",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "crypto-js": "4.0.0",
+    "mobx": "6.9.0",
+    "mobx-react-lite": "3.4.3",
+    "next": "12.3.4",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  },
+  "devDependencies": {
+    "@types/crypto-js": "4.0.1",
+    "@types/node": "20.1.1",
+    "@types/react": "18.2.6",
+    "typescript": "5.0.4"
+  }
+}
