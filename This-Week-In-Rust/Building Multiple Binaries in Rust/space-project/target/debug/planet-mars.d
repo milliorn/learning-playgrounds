@@ -1,0 +1,1 @@
+C:\Users\scott\Desktop\Building\ Multiple\ Binaries\ in\ Rust\space-project\target\debug\planet-mars.exe: C:\Users\scott\Desktop\Building\ Multiple\ Binaries\ in\ Rust\space-project\planet-mars\src\main.rs
