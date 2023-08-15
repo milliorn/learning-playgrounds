@@ -1,11 +1,25 @@
-require('dotenv').config() // dotenv
+// Import necessary modules
+require('dotenv').config();
+const express = require('express');
+const { createHandler } = require('graphql-http/lib/use/express');
+const { buildSchema } = require('graphql'); // Import the necessary function to build the schema
 
-const express = require('express'); // import express
-const app = express(); // create express app
-const port = process.env.PORT || 3001; // port
+// Create an instance of the Express application
+const app = express();
 
-// console.log(process.env)
+// Define your GraphQL schema
+const schema = buildSchema(`
+  type Query {
+    hello: String
+  }
+`);
 
+// Set up GraphQL endpoint using createHandler function
+app.use('/graphql', createHandler({ schema }));
+
+const port = process.env.PORT || 3001;
+
+// Start the server
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
-}); // listen for requests
+});
