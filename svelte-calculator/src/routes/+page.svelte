@@ -5,31 +5,42 @@
 	onMount(() => {
 		// Add event listeners for keyboard input
 		window.addEventListener('keydown', handleKeyPress);
+		window.addEventListener('keyup', handleKeyUp);
 	});
+
+	let keyHeld = false; // To track if a key is held down
 
 	// Handle keyboard input
 	/**
-	 * @param {{ key: any; }} event
+	 * 	 * @param {{ key: any; }} event
 	 */
 	function handleKeyPress(event) {
-		const key = event.key;
-		
-		if (key === 'Enter') {
-			// Handle Enter key as equals
-			equals();
-		} else if (!isNaN(key) || key === '.') {
-			// Handle numeric keys or decimal point
-			select(key)();
-		} else if (key === '+/-') {
-			// Handle plus/minus key
-			toggleSign();
-		} else if (key === '+' || key === '-' || key === '*' || key === '/') {
-			// Handle operator keys
-			operation(key);
-		} else if (key === 'Escape') {
-			// Handle Escape key as clear
-			clear();
+		if (!keyHeld) {
+			keyHeld = true;
+			const key = event.key;
+
+			if (key === 'Enter') {
+				// Handle Enter key as equals
+				equals();
+			} else if (!isNaN(key) || key === '.') {
+				// Handle numeric keys or decimal point
+				select(key)();
+			} else if (key === '+/-') {
+				// Handle plus/minus key
+				toggleSign();
+			} else if (key === '+' || key === '-' || key === '*' || key === '/') {
+				// Handle operator keys
+				operation(key);
+			} else if (key === 'Escape') {
+				// Handle Escape key as clear
+				clear();
+			}
 		}
+	}
+
+	// Handle key release
+	function handleKeyUp() {
+		keyHeld = false;
 	}
 
 	let display_number = '0';
@@ -100,7 +111,7 @@
 
 <div class="calculator">
 	<div class="display">
-		{display_number.length < 23 ? display_number : display_number.substring(0, 23)}
+		{display_number.length <= 10 ? display_number : display_number.substring(0, 10)}
 	</div>
 	<div class="buttons">
 		<button on:click={select(7)}>7</button>
@@ -215,9 +226,9 @@
 		}
 
 		.display {
-			font-size: 8rem; /* 128px */
+			font-size: 6rem; /* 128px */
 			line-height: 1;
-			min-height: 8rem; /* 80px */
+			min-height: 6rem; /* 80px */
 		}
 	}
 
@@ -232,8 +243,8 @@
 		}
 
 		.display {
-			font-size: 8rem; /* 128px */
-			min-height: 8rem; /* 80px */
+			font-size: 7rem; /* 96px */
+			min-height: 7rem; /* 80px */
 		}
 	}
 </style>
