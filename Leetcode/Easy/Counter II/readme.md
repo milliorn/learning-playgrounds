@@ -35,5 +35,4 @@ counter.increment(); // 1
 counter.increment(); // 2
 counter.decrement(); // 1
 counter.reset(); // 0
-counter.reset(); // 0
 ```

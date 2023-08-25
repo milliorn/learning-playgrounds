@@ -86,5 +86,4 @@ fn create_pluralizer(mut animal: String) -> impl FnMut() {
 
 fn call_closure<C: Fn()>(c: C) {
     c();
-    c();
 }

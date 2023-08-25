@@ -6,7 +6,6 @@ macro_rules! blow_up {
     ($a:ident $($rest:tt)+) => {
         blow_up!($a);
         blow_up!($($rest)+);
-        blow_up!($($rest)+);
     }
 }
 
