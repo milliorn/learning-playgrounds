@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flow Fields - Crash Course</title>
+  </head>
+  <body>
+    <canvas id="canvas1"></canvas>
+    <img src="./assets/patternImage.png" alt="" id="patternImage" />
+    <script src="script.js"></script>
+  </body>
+  <style>
+    * {
+      background: #000;
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    canvas {
+      border: 10px solid #333;
+      left: 50%;
+      position: absolute;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    #patternImage {
+      display: none;
+    }
+  </style>
+</html>
