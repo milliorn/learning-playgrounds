@@ -1,10 +1,10 @@
 # Importing necessary modules and custom settings
-from settings import *
 from sys import exit
 
 from game import Game  # Import the Game class
 from preview import Preview  # Import the Preview class
 from score import Score  # Import the Score class
+from settings import *
 
 # Main class definition
 
