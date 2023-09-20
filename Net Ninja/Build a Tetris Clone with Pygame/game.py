@@ -1,5 +1,6 @@
 # Import necessary modules and settings
 from settings import *
+from random import choice
 
 # Class for managing the main game
 
@@ -14,12 +15,17 @@ class Game:
 
         # Define the position of the game surface within the window
         self.rect = self.surface.get_rect(topleft=(PADDING, PADDING))
+        self.sprites = pygame.sprite.Group()
 
         # Create a surface for drawing grid lines
         self.line_surface = self.surface.copy()
         self.line_surface.fill((0, 255, 0))
         self.line_surface.set_colorkey((0, 255, 0))
         self.line_surface.set_alpha(51)
+
+        # Create a random tetromino
+        self.tetromino = Tetromino(
+            choice(list(TETROMINOES.keys())), self.sprites)
 
     def draw_grid(self):
         """
@@ -44,6 +50,8 @@ class Game:
         Run and update the game display.
         """
         self.surface.fill(GRAY)  # Fill the game surface with a gray background
+        # Draw all sprites onto the game surface
+        self.sprites.draw(self.surface)
 
         # Blit (copy) the game surface onto the display surface at the
         # specified position (PADDING, PADDING)
@@ -52,3 +60,30 @@ class Game:
         self.display.blit(self.surface, (PADDING, PADDING))
         # Draw a rectangle around the game surface
         pygame.draw.rect(self.display, LINE_COLOR, self.rect, 1, 1)
+
+# Class representing a tetromino
+
+
+class Tetromino:
+    def __init__(self, shape, group):
+        self.block_positions = TETROMINOES[shape]['shape']
+        self.color = TETROMINOES[shape]['color']
+
+        # Create blocks for the tetromino
+        self.blocks = [Block(group, pos, self.color)
+                       for pos in self.block_positions]
+
+# Class representing a block (part of a tetromino)
+
+
+class Block(pygame.sprite.Sprite):
+    def __init__(self, group, pos, color):
+        super().__init__(group)
+        self.image = pygame.Surface((CELL_SIZE, CELL_SIZE))
+        self.image.fill(color)
+
+        self.pos = pygame.Vector2(pos) + BLOCK_OFFSET
+        y = self.pos.y * CELL_SIZE
+        x = self.pos.x * CELL_SIZE
+
+        self.rect = self.image.get_rect(topleft=(x, y))
