@@ -36,7 +36,7 @@ RED = '#e51b20'
 YELLOW = '#ffff00'
 
 
-# Tetrominos (Tetris shapes)
+# Tetris shapes
 TETROMINOES = {
     'I': {'shape': [(0, 0), (0, -1), (0, -2), (0, 1)], 'color': CYAN},
     'J': {'shape': [(0, 0), (0, -1), (0, 1), (-1, 1)], 'color': BLUE},
@@ -48,4 +48,4 @@ TETROMINOES = {
 }
 
 # Score data for line clearing
-SCORE_DATA = {1: 40, 2: 100, 3: 300, 4: 1200}
+SCORE_DATA = {1: 100, 2: 300, 3: 500, 4: 800}
