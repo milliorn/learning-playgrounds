@@ -8,13 +8,13 @@ GAME_WIDTH, GAME_HEIGHT = COLUMNS * CELL_SIZE, ROWS * \
     CELL_SIZE  # Total game dimensions
 
 # Sidebar size
-SIDEBAR_WIDTH = 200  # Width of the sidebar
+SIDEBAR_WIDTH = 208  # Width of the sidebar
 PREVIEW_HEIGHT_FRACTION = 0.7  # Height fraction for the preview area
 # Height fraction for the score area
 SCORE_HEIGHT_FRACTION = 1 - PREVIEW_HEIGHT_FRACTION
 
 # Window
-PADDING = 20  # Padding around the game area
+PADDING = 16  # Padding around the game area
 WINDOW_HEIGHT = GAME_HEIGHT + PADDING * 2  # Total window height
 WINDOW_WIDTH = GAME_WIDTH + SIDEBAR_WIDTH + PADDING * 3  # Total window width
 
