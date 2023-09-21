@@ -1,31 +1,59 @@
 # Import necessary modules and settings
-from settings import *
 from random import choice
+
+from settings import *
+from timer import Timer
 
 # Class for managing the main game
 
 
 class Game:
     def __init__(self):
-        # Create a surface for the game using specified dimensions
-        self.surface = pygame.Surface((GAME_WIDTH, GAME_HEIGHT))
-
+        """
+        Initialize a Game instance.
+        """
+        self.surface = pygame.Surface(
+            (GAME_WIDTH, GAME_HEIGHT))  # Create a game surface with specified dimensions
         # Get the display surface from Pygame
         self.display = pygame.display.get_surface()
 
         # Define the position of the game surface within the window
         self.rect = self.surface.get_rect(topleft=(PADDING, PADDING))
+        # Create a sprite group to hold game sprites
         self.sprites = pygame.sprite.Group()
 
         # Create a surface for drawing grid lines
         self.line_surface = self.surface.copy()
+        # Fill the line surface with a color
         self.line_surface.fill((0, 255, 0))
+        # Set the colorkey for transparency
         self.line_surface.set_colorkey((0, 255, 0))
-        self.line_surface.set_alpha(51)
+        self.line_surface.set_alpha(51)  # Set the alpha value for transparency
 
         # Create a random tetromino
         self.tetromino = Tetromino(
-            choice(list(TETROMINOES.keys())), self.sprites)
+            choice(
+                list(
+                    TETROMINOES.keys())),
+            self.sprites)
+
+        # Create timers for game actions
+        self.timers = {
+            'vertical move': Timer(UPDATE_START_SPEED, True, self.move_down),
+            'horizontal move': Timer(MOVE_WAIT_TIME),
+            'rotate': Timer(ROTATE_WAIT_TIME)
+        }
+        # Activate the vertical move timer
+        self.timers['vertical move'].activate()
+
+    def timer_update(self):
+        """Update all timers."""
+        for timer in self.timers.values():
+            timer.update()
+
+    def move_down(self):
+        """Move the tetromino down by one block."""
+        self.tetromino.move_down()
 
     def draw_grid(self):
         """
@@ -49,6 +77,8 @@ class Game:
         """
         Run and update the game display.
         """
+        self.timer_update()  # Update the timers
+        self.sprites.update()  # Update all sprites
         self.surface.fill(GRAY)  # Fill the game surface with a gray background
         # Draw all sprites onto the game surface
         self.sprites.draw(self.surface)
@@ -82,6 +112,10 @@ class Tetromino:
         self.blocks = [Block(group, pos, self.color)
                        for pos in self.block_positions]
 
+    def move_down(self):
+        """Move all blocks of the tetromino down by one block."""
+        for block in self.blocks:
+            block.pos.y += 1
 
 # Class representing a block (part of a tetromino)
 
@@ -111,3 +145,8 @@ class Block(pygame.sprite.Sprite):
 
         # Get the block's rectangle (position and size)
         self.rect = self.image.get_rect(topleft=(x, y))
+
+    def update(self):
+        """Update the block's position based on its current position."""
+        self.rect.topleft = self.pos * \
+            CELL_SIZE  # Update the block's rectangle position based on the current position
