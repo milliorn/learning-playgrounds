@@ -66,24 +66,48 @@ class Game:
 
 class Tetromino:
     def __init__(self, shape, group):
-        self.block_positions = TETROMINOES[shape]['shape']
+        """
+        Initialize a Tetromino instance.
+
+        Args:
+            shape (str): Shape of the tetromino ('T', 'O', 'J', etc.).
+            group (pygame.sprite.Group): Sprite group to which the blocks of the tetromino belong.
+        """
+        self.block_positions = TETROMINOES[shape]['shape']  # Get the positions of blocks for the given shape
+        # Get the color of the tetromino
         self.color = TETROMINOES[shape]['color']
 
-        # Create blocks for the tetromino
+        # Create blocks for the tetromino using the specified positions and
+        # color
         self.blocks = [Block(group, pos, self.color)
                        for pos in self.block_positions]
+
 
 # Class representing a block (part of a tetromino)
 
 
 class Block(pygame.sprite.Sprite):
     def __init__(self, group, pos, color):
-        super().__init__(group)
-        self.image = pygame.Surface((CELL_SIZE, CELL_SIZE))
-        self.image.fill(color)
+        """
+        Initialize a Block instance.
 
+        Args:
+            group (pygame.sprite.Group): Sprite group to which the block belongs.
+            pos (tuple): Position of the block.
+            color (str): Color of the block.
+        """
+        super().__init__(group)  # Initialize the sprite using the provided group
+
+        # Create the image (surface) for the block with specified color and
+        # dimensions
+        self.image = pygame.Surface((CELL_SIZE, CELL_SIZE))
+        self.image.fill(color)  # Fill the block with the specified color
+
+        # Set the position of the block based on the provided position and
+        # offset
         self.pos = pygame.Vector2(pos) + BLOCK_OFFSET
         y = self.pos.y * CELL_SIZE
         x = self.pos.x * CELL_SIZE
 
+        # Get the block's rectangle (position and size)
         self.rect = self.image.get_rect(topleft=(x, y))
