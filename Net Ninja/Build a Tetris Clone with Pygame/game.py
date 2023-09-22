@@ -43,6 +43,7 @@ class Game:
             'horizontal move': Timer(MOVE_WAIT_TIME),
             'rotate': Timer(ROTATE_WAIT_TIME)
         }
+
         # Activate the vertical move timer
         self.timers['vertical move'].activate()
 
@@ -73,10 +74,27 @@ class Game:
 
         self.surface.blit(self.line_surface, (0, 0))
 
+    def input(self):
+        keys = pygame.key.get_pressed()  # Get the state of all keyboard keys
+
+        # Check if horizontal movement is allowed
+        if not self.timers['horizontal move'].active:
+            if keys[pygame.K_LEFT]:
+                print('Left key pressed')
+                self.tetromino.move_horizontal(-1)  # Move the tetromino left
+                # Activate the horizontal move timer
+                self.timers['horizontal move'].activate()
+            elif keys[pygame.K_RIGHT]:
+                print('Right key pressed')
+                self.tetromino.move_horizontal(1)  # Move the tetromino right
+                # Activate the horizontal move timer
+                self.timers['horizontal move'].activate()
+
     def run(self):
         """
         Run and update the game display.
         """
+        self.input()  # Get user input
         self.timer_update()  # Update the timers
         self.sprites.update()  # Update all sprites
         self.surface.fill(GRAY)  # Fill the game surface with a gray background
@@ -90,6 +108,7 @@ class Game:
         self.display.blit(self.surface, (PADDING, PADDING))
         # Draw a rectangle around the game surface
         pygame.draw.rect(self.display, LINE_COLOR, self.rect, 1, 1)
+
 
 # Class representing a tetromino
 
@@ -111,6 +130,16 @@ class Tetromino:
         # color
         self.blocks = [Block(group, pos, self.color)
                        for pos in self.block_positions]
+
+    def move_horizontal(self, amount):
+        """
+        Move the tetromino horizontally by one block.
+
+        Args:
+            direction (int): Direction of movement (-1 for left, 1 for right).
+        """
+        for block in self.blocks:
+            block.pos.x += amount  # Move the block horizontally by the specified amount
 
     def move_down(self):
         """Move all blocks of the tetromino down by one block."""
