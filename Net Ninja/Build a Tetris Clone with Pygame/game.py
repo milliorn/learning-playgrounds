@@ -11,8 +11,8 @@ class Game:
         """
         Initialize a Game instance.
         """
-        self.surface = pygame.Surface(
-            (GAME_WIDTH, GAME_HEIGHT))  # Create a game surface with specified dimensions
+        # Create a game surface with specified dimensions
+        self.surface = pygame.Surface((GAME_WIDTH, GAME_HEIGHT))
         # Get the display surface from Pygame
         self.display = pygame.display.get_surface()
         # Define the position of the game surface within the window
@@ -30,11 +30,12 @@ class Game:
         # Create a 2D list for storing field data
         self.field_data = [[0 for x in range(COLUMNS)] for y in range(ROWS)]
 
+        # Create a random tetromino
         self.tetromino = Tetromino(
             choice(list(TETROMINOES.keys())),
             self.sprites,
             self.create_new_tetromino,
-            self.field_data)  # Create a random tetromino
+            self.field_data)
 
         # Create timers for game actions
         self.timers = {
@@ -48,6 +49,9 @@ class Game:
 
     def create_new_tetromino(self):
         """Create a new tetromino."""
+        self.check_finished_rows()
+
+        # Create a random tetromino
         self.tetromino = Tetromino(
             choice(list(TETROMINOES.keys())),
             self.sprites, self.create_new_tetromino, self.field_data)
@@ -112,8 +116,37 @@ class Game:
         # Draw a rectangle around the game surface
         pygame.draw.rect(self.display, LINE_COLOR, self.rect, 1, 1)
 
+    def check_finished_rows(self):
+        """
+        Check and clear completed rows, shifting above blocks down.
+        """
+        deleted_rows = []  # List for storing the rows to delete
+
+        for i, row in enumerate(self.field_data):  # Loop through the rows
+            if all(row):  # Check if all blocks in the row are filled
+                deleted_rows.append(i)  # Add the row index to the list
+
+        if deleted_rows:  # Check if there are any rows to delete
+            for delete_row in deleted_rows:  # Loop through the rows to delete
+                # Loop through the blocks in the row
+                for block in self.field_data[delete_row]:
+                    block.kill()  # Remove the block from the sprite group
+
+                for row in self.field_data:  # Loop through the rows
+                    for block in row:  # Loop through the blocks in the row
+                        if block and block.pos.y < delete_row:  # Check if the block is above the deleted row
+                            block.pos.y += 1  # Move the block down by one row
+
+        # Reset the field data
+        self.field_data = [[0 for x in range(COLUMNS)] for y in range(ROWS)]
+
+        for block in self.sprites:  # Loop through the blocks
+            # Add the block to the field data
+            self.field_data[int(block.pos.y)][int(block.pos.x)] = block
 
 # Class representing a tetromino
+
+
 class Tetromino:
     def __init__(self, shape, group, create_new_tetromino, field_data):
         """
@@ -251,11 +284,12 @@ class Block(pygame.sprite.Sprite):
         if y >= ROWS:
             return True
 
+        # Check if the block collides with another block vertically
         if y >= 0 and field_data[y][int(
-                self.pos.x)]:  # Check if the block collides with another block vertically
+                self.pos.x)]:
             return True
 
     def update(self):
         """Update the block's position based on its current position."""
         self.rect.topleft = self.pos * \
-            CELL_SIZE  # Update the block's rectangle position based on the current position
+            CELL_SIZE
