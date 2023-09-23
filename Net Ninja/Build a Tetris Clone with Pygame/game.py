@@ -25,7 +25,8 @@ class Game:
         self.line_surface.fill((0, 255, 0))
         # Set the colorkey for transparency
         self.line_surface.set_colorkey((0, 255, 0))
-        self.line_surface.set_alpha(51)  # Set the alpha value for transparency
+        # Set the alpha value for transparency
+        self.line_surface.set_alpha(51)
 
         # Create a 2D list for storing field data
         self.field_data = [[0 for x in range(COLUMNS)] for y in range(ROWS)]
@@ -49,6 +50,8 @@ class Game:
 
     def create_new_tetromino(self):
         """Create a new tetromino."""
+
+        # Check for completed rows
         self.check_finished_rows()
 
         # Create a random tetromino
@@ -58,6 +61,8 @@ class Game:
 
     def timer_update(self):
         """Update all timers."""
+
+        # Loop through the timers
         for timer in self.timers.values():
             timer.update()
 
@@ -71,19 +76,28 @@ class Game:
         """
         # Draw vertical lines for the grid
         for col in range(1, COLUMNS):
-            x = col * CELL_SIZE
+            x = col * CELL_SIZE  # Calculate the x-coordinate
+
+            # Draw a line on the line surface
             pygame.draw.line(self.line_surface, LINE_COLOR,
                              (x, 0), (x, self.surface.get_height()), 1)
 
         # Draw horizontal lines for the grid
         for row in range(1, ROWS):
-            y = row * CELL_SIZE
+            y = row * CELL_SIZE  # Calculate the y-coordinate
+
+            # Draw a line on the line surface
             pygame.draw.line(self.line_surface, LINE_COLOR,
                              (0, y), (self.surface.get_width(), y), 1)
 
+        # Blit (copy) the line surface onto the game surface at the specified
+        # position (0, 0)
         self.surface.blit(self.line_surface, (0, 0))
 
     def input(self):
+        """
+        Process user input and perform respective actions.
+        """
         keys = pygame.key.get_pressed()  # Get the state of all keyboard keys
 
         # Check if horizontal movement is allowed
@@ -97,9 +111,14 @@ class Game:
                 # Activate the horizontal move timer
                 self.timers['horizontal move'].activate()
 
+        if not self.timers['rotate'].active:  # Check if rotation is allowed
+            if keys[pygame.K_UP]:
+                self.tetromino.rotate()  # Rotate the tetromino
+                self.timers['rotate'].activate()  # Activate the rotate timer
+
     def run(self):
         """
-        Run and update the game display.
+        Run the game loop and update the game display.
         """
         self.input()  # Get user input
         self.timer_update()  # Update the timers
@@ -156,7 +175,9 @@ class Tetromino:
             shape (str): Shape of the tetromino ('T', 'O', 'J', etc.).
             group (pygame.sprite.Group): Sprite group to which the blocks of the tetromino belong.
         """
-        self.block_positions = TETROMINOES[shape]['shape']  # Get the positions of blocks for the given shape
+        self.shape = shape  # Set the shape of the tetromino
+        # Get the positions of blocks for the given shape
+        self.block_positions = TETROMINOES[shape]['shape']
         # Get the color of the tetromino
         self.color = TETROMINOES[shape]['color']
 
@@ -179,8 +200,11 @@ class Tetromino:
         Returns:
             bool: True if there is a collision, False otherwise.
         """
+
+        # Check if the tetromino will collide with another block horizontally
         collision_list = [block.horizontal_collide(
             int(block.pos.x + amount), self.field_data) for block in self.blocks]
+
         return True if any(collision_list) else False
 
     def next_move_vertical_collide(self, blocks, amount):
@@ -226,6 +250,31 @@ class Tetromino:
             for row in self.field_data:
                 print(row)  # Print the field data
 
+    def rotate(self):
+        """Rotate the tetromino."""
+        # print('rotate')
+        if self.shape != 'O':
+            # Get the position of the pivot block
+            pivot_pos = self.blocks[0].pos
+
+            new_block_positions = [
+                block.rotate(pivot_pos) for block in self.blocks]  # Rotate each block
+
+            for pos in new_block_positions:  # Loop through the new block positions
+                if pos.x < 0 or pos.x >= COLUMNS:  # Check if the block is out of bounds
+                    return  # Return if the block is out of bounds
+
+                if self.field_data[int(pos.y)][int(
+                        pos.x)]:  # Check if the block collides with another block
+                    return  # Return if the block collides with another block
+
+                if pos.y > ROWS:  # Check if the block is below the field
+                    return  # Return if the block is below the field
+
+            for i, block in enumerate(self.blocks):  # Loop through the blocks
+                # Set the block position to the new position
+                block.pos = new_block_positions[i]
+
 # Class representing a block (part of a tetromino)
 
 
@@ -248,12 +297,28 @@ class Block(pygame.sprite.Sprite):
 
         # Set the position of the block based on the provided position and
         # offset
+        # Convert the position to a vector
         self.pos = pygame.Vector2(pos) + BLOCK_OFFSET
-        y = self.pos.y * CELL_SIZE
-        x = self.pos.x * CELL_SIZE
+        y = self.pos.y * CELL_SIZE  # Calculate the y-coordinate
+        x = self.pos.x * CELL_SIZE  # Calculate the x-coordinate
 
         # Get the block's rectangle (position and size)
         self.rect = self.image.get_rect(topleft=(x, y))
+
+    def rotate(self, pivot_pos):
+        """
+        Rotate the block around the specified pivot point.
+
+        Args:
+            pivot_pos (tuple): Position of the pivot point.
+
+        Returns:
+            tuple: New position of the block.
+        """
+        # distance = self.pos - pivot_pos  # Get the distance from the pivot
+        # rotated = distance.rotate(90)  # Rotate the distance by 90 degrees
+        # new_pos = rotated + pivot_pos  # Get the new position of the block
+        return pivot_pos + (self.pos - pivot_pos).rotate(90)
 
     def horizontal_collide(self, x, field_data):
         """
@@ -265,11 +330,12 @@ class Block(pygame.sprite.Sprite):
         Returns:
             bool: True if the block collides with another block horizontally, False otherwise.
         """
-        if not 0 <= x < COLUMNS:
-            return True
+        if not 0 <= x < COLUMNS:  # Check if the block is out of bounds
+            return True  # Return True if the block is out of bounds
 
-        if field_data[int(self.pos.y)][x]:
-            return True
+        if field_data[int(
+                self.pos.y)][x]:  # Check if the block collides with another block horizontally
+            return True  # Return True if the block collides with another block horizontally
 
     def vertical_collide(self, y, field_data):
         """
@@ -281,15 +347,15 @@ class Block(pygame.sprite.Sprite):
         Returns:
             bool: True if the block collides with another block vertically, False otherwise.
         """
-        if y >= ROWS:
-            return True
+        if y >= ROWS:  # Check if the block is below the field
+            return True  # Return True if the block is below the field
 
         # Check if the block collides with another block vertically
         if y >= 0 and field_data[y][int(
                 self.pos.x)]:
-            return True
+            return True  # Return True if the block collides with another block vertically
 
     def update(self):
         """Update the block's position based on its current position."""
         self.rect.topleft = self.pos * \
-            CELL_SIZE
+            CELL_SIZE  # Update the block's rectangle position based on the current position
