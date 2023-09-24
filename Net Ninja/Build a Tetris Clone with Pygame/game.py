@@ -44,6 +44,12 @@ class Game:
             self.create_new_tetromino,
             self.field_data)
 
+        self.down_speed = UPDATE_START_SPEED  # Set the down speed of the tetromino
+        # Set the faster down speed of the tetromino
+        self.down_speed_faster = self.down_speed * 0.1
+
+        self.down_pressed = False  # Flag for down key pressed
+
         # Create timers for game actions
         self.timers = {
             'vertical move': Timer(UPDATE_START_SPEED, True, self.move_down),
@@ -119,6 +125,18 @@ class Game:
                 self.tetromino.rotate()  # Rotate the tetromino
                 # Activate the rotate timer
                 self.timers['rotate'].activate()
+
+        if not self.down_pressed and keys[pygame.K_DOWN]:
+            self.down_pressed = True  # Set the down pressed flag to True
+            # print("down pressed")
+            # Set the vertical move timer duration to the faster speed
+            self.timers['vertical move'].duration = self.down_speed_faster
+
+        if self.down_pressed and not keys[pygame.K_DOWN]:
+            self.down_pressed = False
+            # print("down released")
+            # Set the vertical move timer duration to the normal speed
+            self.timers['vertical move'].duration = self.down_speed
 
     def run(self):
         """
