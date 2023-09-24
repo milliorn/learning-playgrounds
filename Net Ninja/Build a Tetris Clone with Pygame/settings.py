@@ -22,7 +22,7 @@ WINDOW_WIDTH = GAME_WIDTH + SIDEBAR_WIDTH + PADDING * 3  # Total window width
 BLOCK_OFFSET = pygame.Vector2(COLUMNS // 2, -1)  # Initial block offset
 MOVE_WAIT_TIME = 200  # Wait time for block movement
 ROTATE_WAIT_TIME = 200  # Wait time for block rotation
-UPDATE_START_SPEED = 600  # Initial update speed for the game
+UPDATE_START_SPEED = 200  # Initial update speed for the game default 600
 
 # Colors
 BLUE = '#204b9b'

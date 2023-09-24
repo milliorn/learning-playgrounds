@@ -1,10 +1,11 @@
-# Importing necessary modules and custom settings
+# Import necessary modules and custom settings
 from sys import exit
 
 from game import Game  # Import the Game class
 from preview import Preview  # Import the Preview class
 from score import Score  # Import the Score class
 from settings import *
+from random import choice
 
 # Main class definition
 
@@ -17,16 +18,27 @@ class Main:
         self.display = pygame.display.set_mode(
             (WINDOW_WIDTH, WINDOW_HEIGHT))  # Set the display dimensions
 
+        # List of next shapes to be displayed
+        self.next_shapes = [choice(list(TETROMINOES.keys()))
+                            for shape in range(3)]
+        # print(self.next_shapes)
+
         # Create instances of the classes
-        self.game = Game()
+        self.game = Game(self.get_next_shape)
         self.preview = Preview()
         self.score = Score()
 
+    def get_next_shape(self):
+        # Get the next shape in the list and append a new random shape
+        next_shape = self.next_shapes.pop(0) # Get the next shape in the list
+        self.next_shapes.append(choice(list(TETROMINOES.keys()))) # Append a new random shape
+        return next_shape # Return the next shape
+
     def run(self):
         # Main game loop
-        while True:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
+        while True: # Loop forever
+            for event in pygame.event.get(): # Get all the events from the event queue
+                if event.type == pygame.QUIT: # If the user clicked the close button
                     pygame.quit()  # Quit Pygame
                     exit()  # Exit the program
 
@@ -34,7 +46,7 @@ class Main:
 
             self.game.run()  # Run the game loop for Game
             self.score.run()  # Run the score update
-            self.preview.run()  # Run the preview display
+            self.preview.run(self.next_shapes)  # Run the preview display
 
             pygame.display.update()  # Update the display
             self.clock.tick(60)  # Cap the frame rate to 60 frames per second
