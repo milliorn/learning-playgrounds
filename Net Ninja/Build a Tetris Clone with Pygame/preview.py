@@ -1,66 +1,44 @@
-# Import necessary modules and settings
-from settings import *
-from pygame.image import load
 from os import path
-
-# Class for displaying a preview of the game
+from pygame.image import load
+from settings import *
 
 
 class Preview:
     def __init__(self):
-        # Get the display surface from Pygame
-        self.display_surface = pygame.display.get_surface()
 
-        # Create a surface for the preview using specified dimensions
+        # general
+        self.display_surface = pygame.display.get_surface()  # get display
         self.surface = pygame.Surface(
-            (SIDEBAR_WIDTH, GAME_HEIGHT * PREVIEW_HEIGHT_FRACTION))
-
-        # Set the position of the preview surface within the window
+            (SIDEBAR_WIDTH, GAME_HEIGHT * PREVIEW_HEIGHT_FRACTION))  # create surface
         self.rect = self.surface.get_rect(
-            topright=(WINDOW_WIDTH - PADDING, PADDING))
+            topright=(WINDOW_WIDTH - PADDING, PADDING))  # create rect
 
-        # Dictionary to store shape surfaces for preview
+        # shapes
         self.shape_surfaces = {
             shape: load(
                 path.join(
                     'assets',
                     'graphics',
-                    f'{shape}.png')).convert_alpha() for shape in TETROMINOES.keys()}
+                    f'{shape}.png')).convert_alpha() for shape in TETROMINOES.keys()}  # create shape surfaces
 
-        self.increment_height = self.surface.get_height() / 3  # Height of each fragment
+        # image position data
+        self.increment_height = self.surface.get_height() / 3  # calculate increment height
 
     def display_pieces(self, shapes):
-        """
-        Display the preview of next shapes on the preview surface.
-
-        Args:
-            shapes (list): List of next shapes to display.
-        """
-        for i, shape in enumerate(shapes):
-            shape_surface = self.shape_surfaces[shape]  # Get the shape surface
-
-            x = self.surface.get_width() / 2  # Calculate the x position of the shape
-            # Calculate the y position of the shape
-            y = self.increment_height / 2 + i * self.increment_height
-            rect = shape_surface.get_rect(center=(x, y))  # Get the shape rect
-
-            # Blit the shape surface onto the preview surface
-            self.surface.blit(shape_surface, rect)
+        for i, shape in enumerate(shapes):  # loop through shapes
+            shape_surface = self.shape_surfaces[shape]  # get shape surface
+            x = self.surface.get_width() / 2  # calculate x
+            y = self.increment_height / 2 + i * self.increment_height  # calculate y
+            rect = shape_surface.get_rect(center=(x, y))  # create rect
+            self.surface.blit(shape_surface, rect)  # blit shape
 
     def run(self, next_shapes):
-        """
-        Run and update the preview display.
-
-        Args:
-            next_shapes (list): List of next shapes to display.
-        """
-        self.surface.fill(
-            GRAY)  # Fill the preview surface with gray background
-        # Display the next shapes on the preview surface
-        self.display_pieces(next_shapes)
-
-        # Blit (copy) the preview surface onto the display surface at the
-        # specified position
-        self.display_surface.blit(self.surface, self.rect)
-        # Draw a rectangle around the preview surface
-        pygame.draw.rect(self.display_surface, LINE_COLOR, self.rect, 2, 2)
+        self.surface.fill(GRAY)  # fill surface
+        self.display_pieces(next_shapes)  # display pieces
+        self.display_surface.blit(self.surface, self.rect)  # blit surface
+        pygame.draw.rect(
+            self.display_surface,
+            LINE_COLOR,
+            self.rect,
+            2,
+            2)  # draw border
