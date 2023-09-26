@@ -25,3 +25,5 @@ https://github.com/frederickjjoubert/learn-bevy/tree/main
 https://www.youtube.com/watch?v=izhFutJiZgo&list=PLVnntJRoP85JHGX7rGDu6LaF3fmDDbqyd&index=2
 
 https://youtu.be/xnGMw5j5Xdo?list=PLVnntJRoP85JHGX7rGDu6LaF3fmDDbqyd
+
+https://youtu.be/4TjEo-gDgAg?list=PLVnntJRoP85JHGX7rGDu6LaF3fmDDbqyd
