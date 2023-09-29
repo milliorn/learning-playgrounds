@@ -1,3 +1,4 @@
+use bevy::app::AppExit;
 use bevy::{prelude::*, window::PrimaryWindow};
 use rand::prelude::*;
 
@@ -9,6 +10,7 @@ pub const PLAYER_SIZE: f32 = 64.0; // The size of the player sprite
 pub const PLAYER_SPEED: f32 = 500.0; // The speed of the player
 pub const STAR_SIZE: f32 = 30.0; // The size of the star sprite
 pub const STAR_SPAWN_TIME: f32 = 1.0; // The time between star spawns
+pub const ENEMY_SPAWN_TIME: f32 = 5.0; // The time between enemy spawns
 
 fn main() {
     // Create a new Bevy app
@@ -17,6 +19,9 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .init_resource::<Score>() // Insert a resource to track the score
         .init_resource::<StarSpawnTimer>() // Insert a resource to track the star spawn timer
+        .init_resource::<EnemySpawnTimer>() // Insert a resource to track the enemy spawn timer
+        .init_resource::<HighScores>() // Insert a resource to track the high scores
+        .add_event::<GameOver>() // Add an event to indicate the game is over
         .add_startup_system(spawn_camera) // Add a system to spawn the camera when the app starts
         .add_startup_system(spawn_enemies) // Add a system to spawn enemies when the app starts
         .add_startup_system(spawn_player) // Add a system to spawn the player when the app starts
@@ -31,6 +36,12 @@ fn main() {
         .add_system(tick_star_spawn_timer) // Add a system to tick the star spawn timer
         .add_system(update_enemy_direction) // Add a system to update the enemy direction
         .add_system(update_score) // Add a system to update the score
+        .add_system(tick_enemy_spawn_timer) // Add a system to tick the enemy spawn timer
+        .add_system(spawn_enemies_over_time) // Add a system to spawn enemies over time
+        .add_system(exit_on_escape) // Add a system to exit the app when the escape key is pressed
+        .add_system(handle_game_over) // Add a system to handle game over events
+        .add_system(update_high_scores) // Add a system to update the high scores
+        .add_system(high_scores_updated) // Add a system to print the high scores
         // Run the app
         .run();
 }
@@ -70,6 +81,34 @@ impl Default for StarSpawnTimer {
         StarSpawnTimer {
             timer: Timer::from_seconds(STAR_SPAWN_TIME, TimerMode::Repeating),
         }
+    }
+}
+
+pub struct GameOver {
+    pub score: u32,
+}
+
+#[derive(Resource)]
+pub struct EnemySpawnTimer {
+    pub timer: Timer,
+}
+
+impl Default for EnemySpawnTimer {
+    fn default() -> EnemySpawnTimer {
+        EnemySpawnTimer {
+            timer: Timer::from_seconds(ENEMY_SPAWN_TIME, TimerMode::Repeating),
+        }
+    }
+}
+
+#[derive(Resource, Debug)]
+pub struct HighScores {
+    pub scores: Vec<(String, u32)>,
+}
+
+impl Default for HighScores {
+    fn default() -> HighScores {
+        HighScores { scores: Vec::new() }
     }
 }
 
@@ -312,10 +351,12 @@ pub fn confine_enemy_movement(
 // This function is a system to check if an enemy hit the player
 pub fn enemy_hit_player(
     mut commands: Commands, // Allows us to issue commands to the ECS (Entity-Component-System)
+    mut game_over_event_writer: EventWriter<GameOver>, // Allows us to write GameOver events
     mut player_query: Query<(Entity, &Transform), With<Player>>, // Queries for player entities and their transforms
     enemy_query: Query<&Transform, With<Enemy>>,                 // Queries for enemy transforms
     asset_server: Res<AssetServer>, // Accesses the AssetServer resource to load assets
     audio: Res<Audio>,              // Accesses the Audio resource to play sounds
+    score: Res<Score>,              // Accesses the Score resource to get the score
 ) {
     if let Ok((player_entity, player_transform)) = player_query.get_single_mut() {
         // Attempt to get a single player entity and its transform
@@ -333,6 +374,8 @@ pub fn enemy_hit_player(
                 // Load a sound effect
                 audio.play(sound_effect); // Play the loaded sound effect
                 commands.entity(player_entity).despawn(); // Despawn the player entity
+
+                game_over_event_writer.send(GameOver { score: score.value }); // Send a GameOver event
             }
         }
     }
@@ -369,9 +412,9 @@ pub fn player_hit_star(
     mut commands: Commands, // Allows us to issue commands to the ECS (Entity-Component-System)
     player_query: Query<&Transform, With<Player>>, // Query for the player's transform
     star_query: Query<(Entity, &Transform), With<Star>>, // Query for star entities and their transforms
-    asset_server: Res<AssetServer>, // Access the asset server resource
-    audio: Res<Audio>, // Access the audio resource
-    mut score: ResMut<Score>, // Access the score resource
+    asset_server: Res<AssetServer>,                      // Access the asset server resource
+    audio: Res<Audio>,                                   // Access the audio resource
+    mut score: ResMut<Score>,                            // Access the score resource
 ) {
     // Check if we can retrieve the player's transformation
     if let Ok(player_transform) = player_query.get_single() {
@@ -430,5 +473,72 @@ pub fn spawn_stars_over_time(
             },
             Star {},
         ));
+    }
+}
+
+// This function is a system to tick the enemy spawn timer
+pub fn tick_enemy_spawn_timer(mut enemy_spawn_timer: ResMut<EnemySpawnTimer>, time: Res<Time>) {
+    enemy_spawn_timer.timer.tick(time.delta()); // Tick the timer
+}
+
+// This function is a system to spawn enemies over time
+pub fn spawn_enemies_over_time(
+    mut commands: Commands,
+    window_query: Query<&Window, With<PrimaryWindow>>,
+    asset_server: Res<AssetServer>,
+    enemy_spawn_timer: Res<EnemySpawnTimer>,
+) {
+    if enemy_spawn_timer.timer.finished() {
+        let window = window_query.get_single().unwrap(); // Get window information
+
+        let random_x = random::<f32>() * window.width(); // Generate a random x-coordinate within the window
+        let random_y = random::<f32>() * window.height(); // Generate a random y-coordinate within the window
+
+        // Spawn an enemy entity with a SpriteBundle (visual representation) and the Enemy component (logical representation)
+        commands.spawn((
+            SpriteBundle {
+                transform: Transform::from_xyz(random_x, random_y, 0.0), // Set the initial position of the enemy
+                texture: asset_server.load("sprites/Default/ball_red_large.png"), // Load the texture for the enemy
+                ..default() // Use default values for the rest of the SpriteBundle
+            },
+            Enemy {
+                direction: Vec2::new(random::<f32>(), random::<f32>()).normalize(), // Set a random normalized direction for the enemy
+            },
+        ));
+    }
+}
+
+// This function is a system to exit the app when the escape key is pressed
+pub fn exit_on_escape(
+    keyboard_input: Res<Input<KeyCode>>, // Resource to access keyboard input
+    mut app_exit_event_writer: EventWriter<AppExit>, // Resource to write AppExit events
+) {
+    if keyboard_input.pressed(KeyCode::Escape) {
+        app_exit_event_writer.send(AppExit); // Send an AppExit event
+    }
+}
+
+// This function is a system to handle game over events
+pub fn handle_game_over(mut game_over_event_reader: EventReader<GameOver>) {
+    for game_over_event in game_over_event_reader.iter() {
+        println!("Game Over! Score: {}", game_over_event.score.to_string());
+    }
+}
+
+// This function is a system to update the high scores
+pub fn update_high_scores(
+    mut game_over_event_reader: EventReader<GameOver>, // Resource to read GameOver events
+    mut high_scores: ResMut<HighScores>, // Resource to access the high scores
+) {
+    // Iterate through each GameOver event
+    for event in game_over_event_reader.iter() {
+        high_scores.scores.push(("Player".to_string(), event.score));
+    }
+}
+
+// This function is a system to print the high scores
+pub fn high_scores_updated(high_scores: Res<HighScores>) {
+    if high_scores.is_changed() {
+        println!("High Scores: {:?}", high_scores);
     }
 }
