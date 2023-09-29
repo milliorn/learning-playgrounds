@@ -1,33 +1,42 @@
 use bevy::{prelude::*, window::PrimaryWindow};
 use rand::prelude::*;
 
+pub const ENEMY_SIZE: f32 = 64.0; // The size of the enemy sprite
+pub const ENEMY_SPEED: f32 = 200.0; // The speed of the enemies
+pub const NUMBER_OF_ENEMIES: usize = 4; // The number of enemies to spawn
+pub const NUMBER_OF_STARS: usize = 10; // The number of stars to spawn
 pub const PLAYER_SIZE: f32 = 64.0; // The size of the player sprite
 pub const PLAYER_SPEED: f32 = 500.0; // The speed of the player
-pub const NUMBER_OF_ENEMIES: usize = 4; // The number of enemies to spawn
-pub const ENEMY_SPEED: f32 = 200.0; // The speed of the enemies
-pub const ENEMY_SIZE: f32 = 64.0; // The size of the enemy sprite
+pub const STAR_SIZE: f32 = 30.0; // The size of the star sprite
+pub const STAR_SPAWN_TIME: f32 = 1.0; // The time between star spawns
 
 fn main() {
     // Create a new Bevy app
     App::new()
         // Add default plugins necessary for Bevy to run
         .add_plugins(DefaultPlugins)
+        .init_resource::<Score>() // Insert a resource to track the score
+        .init_resource::<StarSpawnTimer>() // Insert a resource to track the star spawn timer
         .add_startup_system(spawn_camera) // Add a system to spawn the camera when the app starts
-        .add_startup_system(spawn_player) // Add a system to spawn the player when the app starts
-        // Add a system to spawn the camera when the app starts
         .add_startup_system(spawn_enemies) // Add a system to spawn enemies when the app starts
-        .add_system(player_movement) // Add a system to move the player
-        .add_system(confine_player_movement) // Add a system to confine the player to the window
-        .add_system(enemy_movement) // Add a system to move the enemies
-        .add_system(update_enemy_direction) // Add a system to update the enemy direction
+        .add_startup_system(spawn_player) // Add a system to spawn the player when the app starts
+        .add_startup_system(spawn_stars) // Add a system to spawn stars when the app starts
         .add_system(confine_enemy_movement) // Add a system to confine the enemies to the window
+        .add_system(confine_player_movement) // Add a system to confine the player to the window
         .add_system(enemy_hit_player) // Add a system to check if an enemy hit the player
+        .add_system(enemy_movement) // Add a system to move the enemies
+        .add_system(player_hit_star) // Add a system to check if the player hit a star
+        .add_system(player_movement) // Add a system to move the player
+        .add_system(spawn_stars_over_time) // Add a system to spawn stars over time
+        .add_system(tick_star_spawn_timer) // Add a system to tick the star spawn timer
+        .add_system(update_enemy_direction) // Add a system to update the enemy direction
+        .add_system(update_score) // Add a system to update the score
         // Run the app
         .run();
 }
 
 /*
-Define a component representing the Player entity
+Define components representing the entiities
 */
 #[derive(Component)]
 pub struct Player {}
@@ -35,6 +44,33 @@ pub struct Player {}
 #[derive(Component)]
 pub struct Enemy {
     pub direction: Vec2,
+}
+
+#[derive(Component)]
+pub struct Star {}
+
+#[derive(Resource)]
+pub struct Score {
+    pub value: u32,
+}
+
+#[derive(Resource)]
+pub struct StarSpawnTimer {
+    pub timer: Timer,
+}
+
+impl Default for Score {
+    fn default() -> Self {
+        Self { value: 0 }
+    }
+}
+
+impl Default for StarSpawnTimer {
+    fn default() -> StarSpawnTimer {
+        StarSpawnTimer {
+            timer: Timer::from_seconds(STAR_SPAWN_TIME, TimerMode::Repeating),
+        }
+    }
 }
 
 /*
@@ -81,6 +117,7 @@ pub fn spawn_camera(mut commands: Commands, window_query: Query<&Window, With<Pr
     });
 }
 
+// This function is a system to move the player
 pub fn player_movement(
     keyboard_input: Res<Input<KeyCode>>,
     mut player_query: Query<&mut Transform, With<Player>>,
@@ -111,6 +148,7 @@ pub fn player_movement(
     }
 }
 
+// This function is a system to confine the player to the window
 pub fn confine_player_movement(
     mut player_query: Query<&mut Transform, With<Player>>, // Query to get the player's transformation
     window_query: Query<&Window, With<PrimaryWindow>>, // Query to get information about the window
@@ -145,6 +183,7 @@ pub fn confine_player_movement(
     }
 }
 
+// This function is a system to spawn enemies
 pub fn spawn_enemies(
     mut commands: Commands,
     window_query: Query<&Window, With<PrimaryWindow>>,
@@ -180,6 +219,7 @@ pub fn enemy_movement(mut enemy_query: Query<(&mut Transform, &Enemy)>, time: Re
     }
 }
 
+// This function is a system to update the enemy direction
 pub fn update_enemy_direction(
     mut enemy_query: Query<(&Transform, &mut Enemy)>, // Query for enemy transforms and their directions
     window_query: Query<&Window, With<PrimaryWindow>>, // Query for window information
@@ -229,6 +269,7 @@ pub fn update_enemy_direction(
     }
 }
 
+// This function is a system to confine the enemies to the window
 pub fn confine_enemy_movement(
     mut enemy_query: Query<&mut Transform, With<Enemy>>, // Query for enemy transforms
     window_query: Query<&Window, With<PrimaryWindow>>,   // Query for window information
@@ -268,6 +309,7 @@ pub fn confine_enemy_movement(
     }
 }
 
+// This function is a system to check if an enemy hit the player
 pub fn enemy_hit_player(
     mut commands: Commands, // Allows us to issue commands to the ECS (Entity-Component-System)
     mut player_query: Query<(Entity, &Transform), With<Player>>, // Queries for player entities and their transforms
@@ -293,5 +335,100 @@ pub fn enemy_hit_player(
                 commands.entity(player_entity).despawn(); // Despawn the player entity
             }
         }
+    }
+}
+
+// This function is a system to spawn stars
+pub fn spawn_stars(
+    mut commands: Commands, // Allows us to issue commands to the ECS (Entity-Component-System)
+    window_query: Query<&Window, With<PrimaryWindow>>, // Query to get information about the window
+    asset_server: Res<AssetServer>, // Access the asset server resource
+) {
+    let window = window_query.get_single().unwrap(); // Get window information
+
+    // Spawn a certain number of stars
+    for _ in 0..NUMBER_OF_STARS {
+        // Generate a random x and y coordinate within the window
+        let random_x = random::<f32>() * window.width();
+        let random_y = random::<f32>() * window.height();
+
+        // Spawn a star entity with a SpriteBundle (visual representation) and the Star component (logical representation)
+        commands.spawn((
+            SpriteBundle {
+                transform: Transform::from_xyz(random_x, random_y, 0.0),
+                texture: asset_server.load("sprites/Default/star.png"),
+                ..default()
+            },
+            Star {},
+        ));
+    }
+}
+
+// This function is a system to check if the player hit a star
+pub fn player_hit_star(
+    mut commands: Commands, // Allows us to issue commands to the ECS (Entity-Component-System)
+    player_query: Query<&Transform, With<Player>>, // Query for the player's transform
+    star_query: Query<(Entity, &Transform), With<Star>>, // Query for star entities and their transforms
+    asset_server: Res<AssetServer>, // Access the asset server resource
+    audio: Res<Audio>, // Access the audio resource
+    mut score: ResMut<Score>, // Access the score resource
+) {
+    // Check if we can retrieve the player's transformation
+    if let Ok(player_transform) = player_query.get_single() {
+        // Check if we can retrieve the star's entity and transformation
+        for (star_entity, star_transform) in star_query.iter() {
+            let distance = player_transform
+                .translation
+                .distance(star_transform.translation); // Calculate distance between player and star
+            let player_radius = PLAYER_SIZE / 2.0; // Calculate the player's radius
+            let star_radius = STAR_SIZE / 2.0; // Calculate the star's radius
+
+            // Check if the distance is less than the sum of player and star radii (collision)
+            if distance < player_radius + star_radius {
+                println!("Player hit star!"); // Print a message indicating a collision
+                score.value += 1; // Increment the score
+                let sound_effect = asset_server.load("audio/laserLarge_000.ogg");
+                audio.play(sound_effect);
+                // Despawn the star entity
+                commands.entity(star_entity).despawn();
+            }
+        }
+    }
+}
+
+// This function is a system to update the score
+pub fn update_score(score: Res<Score>) {
+    if score.is_changed() {
+        println!("Score: {}", score.value.to_string());
+    }
+}
+
+// This function is a system to tick the star spawn timer
+pub fn tick_star_spawn_timer(mut star_spawn_timer: ResMut<StarSpawnTimer>, time: Res<Time>) {
+    star_spawn_timer.timer.tick(time.delta()); // Tick the timer
+}
+
+// This function is a system to spawn stars over time
+pub fn spawn_stars_over_time(
+    mut commands: Commands, // Allows us to issue commands to the ECS (Entity-Component-System)
+    window_query: Query<&Window, With<PrimaryWindow>>, // Query to get information about the window
+    asset_server: Res<AssetServer>, // Access the asset server resource
+    star_spawn_timer: Res<StarSpawnTimer>, // Access the star spawn timer resource
+) {
+    if star_spawn_timer.timer.finished() {
+        let window = window_query.get_single().unwrap(); // Get window information
+
+        let random_x = random::<f32>() * window.width(); // Generate a random x-coordinate within the window
+        let random_y = random::<f32>() * window.height(); // Generate a random y-coordinate within the window
+
+        // Spawn a star entity with a SpriteBundle (visual representation) and the Star component (logical representation)
+        commands.spawn((
+            SpriteBundle {
+                transform: Transform::from_xyz(random_x, random_y, 0.0), // Set the initial position of the star
+                texture: asset_server.load("sprites/Default/star.png"), // Load the texture for the star
+                ..default() // Use default values for the rest of the SpriteBundle
+            },
+            Star {},
+        ));
     }
 }
