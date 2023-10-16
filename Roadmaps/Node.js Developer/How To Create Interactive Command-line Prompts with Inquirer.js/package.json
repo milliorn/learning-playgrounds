@@ -1,0 +1,14 @@
+{
+  "name": "nodejs-interactive-command-line-prompts",
+  "version": "1.0.0",
+  "description": "https://www.digitalocean.com/community/tutorials/nodejs-interactive-command-line-prompts",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "inquirer": "^9.2.11"
+  }
+}
