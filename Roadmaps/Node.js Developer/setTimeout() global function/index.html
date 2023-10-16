@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <button id="run">Run</button>
+    <div class="">
+      <table>
+        <thead>
+          <tr>
+            <th>Previous</th>
+            <th>This</th>
+            <th>Actual delay</th>
+          </tr>
+        </thead>
+        <tbody id="log"></tbody>
+      </table>
+    </div>
+    <div class="">
+      <button onclick="delayedMessage();">
+        Show a message after two seconds
+      </button>
+      <button onclick="clearMessage();">
+        Cancel message before it happens
+      </button>
+
+      <div id="output"></div>
+    </div>
+  </body>
+  <script>
+    let last = 0;
+    let iterations = 10;
+
+    function timeout() {
+      // log the time of this call
+      logline(new Date().getMilliseconds());
+      // if we are not finished, schedule the next call
+      if (iterations-- > 0) {
+        setTimeout(timeout, 0);
+      }
+    }
+
+    function run() {
+      // clear the log
+      const log = document.querySelector("#log");
+      while (log.lastElementChild) {
+        log.removeChild(log.lastElementChild);
+      }
+
+      // initialize iteration count and the starting timestamp
+      iterations = 10;
+      last = new Date().getMilliseconds();
+      // start timer
+      setTimeout(timeout, 0);
+    }
+
+    function logline(now) {
+      // log the last timestamp, the new timestamp, and the difference
+      const tableBody = document.getElementById("log");
+      const logRow = tableBody.insertRow();
+      logRow.insertCell().textContent = last;
+      logRow.insertCell().textContent = now;
+      logRow.insertCell().textContent = now - last;
+      last = now;
+    }
+
+    document.querySelector("#run").addEventListener("click", run);
+
+    let timeoutID;
+
+    function setOutput(outputContent) {
+      document.querySelector("#output").textContent = outputContent;
+    }
+
+    function delayedMessage() {
+      setOutput("");
+      timeoutID = setTimeout(setOutput, 2 * 1000, "That was really slow!");
+    }
+
+    function clearMessage() {
+      clearTimeout(timeoutID);
+    }
+  </script>
+</html>
