@@ -1,0 +1,16 @@
+{
+  "name": "how-to-consume-apis-using-got-in-node",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "node index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "got": "^13.0.0"
+  }
+}
