@@ -434,3 +434,30 @@ Code with Ania Kubów/Vector Embeddings for Beginners/search/.env
 Code with Ania Kubów/Vector Embeddings for Beginners/vector_embeddings_for_beginners-token.json
 
 *bundle
+
+# This gitignore file is used only internally for this repository,
+# you should not use this in your own projects. Instead, navigate into
+# an example folder and use the folder as the project root (it also contains a
+# projects-specific .gitignore).
+
+node_modules/
+yarn-error.log/
+vendor/
+tmp/
+dist/
+.DS_Store
+.idea
+tmp-resolvers
+package-lock.json
+flow-typed
+yarn.lock
+javascript/**/migrations/
+typescript/**/migrations/
+misc/**/migrations/
+databases/**/migrations/
+experimental/**/*.db
+.next
+.vscode/
+.nuxt
+dev.db
+*.env*
